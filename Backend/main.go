@@ -1,24 +1,52 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"main/config"
+	"main/infra"
+	logger "main/middleware"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func main() {
-	// Create a Gin router with default middleware (logger and recovery)
-	r := gin.Default()
 
-	// Define a simple GET endpoint
+	config.LoadConfig()
+	infra.InitDB()
+
+	if err := logger.Init(config.AppConfig.Env); err != nil {
+		log.Fatalf("failed to init logger: %v", err)
+	}
+	defer logger.Log.Sync()
+	r := gin.New()
+	r.Use(gin.Recovery())
+	r.Use(GinZapMiddleware())
+
 	r.GET("/ping", func(c *gin.Context) {
-		// Return JSON response
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
 
-	// Start server on port 8080 (default)
-	// Server will listen on 0.0.0.0:8080 (localhost:8080 on Windows)
-	r.Run(":8888")
+	addr := fmt.Sprintf(":%s", config.AppConfig.Port)
+	r.Run(addr)
+}
+
+func GinZapMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		path := c.Request.URL.Path
+		method := c.Request.Method
+
+		c.Next() // ハンドラーを実行
+
+		status := c.Writer.Status()
+		logger.Log.Info("request completed",
+			zap.String("method", method),
+			zap.String("path", path),
+			zap.Int("status", status),
+		)
+	}
 }
