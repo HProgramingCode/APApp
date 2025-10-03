@@ -17,6 +17,7 @@ func SetupRouter(r *gin.Engine, setting RouterSetting) {
 	auth := r.Group("/auth")
 	{
 		auth.POST("/signup", setting.Auth.Signup)
+		auth.POST("/login", setting.Auth.Login)
 	}
 
 }
