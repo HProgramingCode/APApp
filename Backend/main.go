@@ -40,9 +40,12 @@ func setupApp() (*gin.Engine, error) {
 		return nil, err
 	}
 
-	authRepository := repositories.NewAuthRepository(infra.DB)
-	authService := services.NewAuthService(authRepository)
+	userRepository := repositories.NewUserRepository(infra.DB)
+	authService := services.NewAuthService(userRepository)
 	authController := controllers.NewAuthController(authService)
+
+	userService := services.NewUserService(userRepository)
+	userController := controllers.NewUserController(userService)
 
 	r := gin.New()
 	r.Use(gin.Recovery())
@@ -50,6 +53,7 @@ func setupApp() (*gin.Engine, error) {
 
 	routers.SetupRouter(r, routers.RouterSetting{
 		Auth: authController,
+		User: userController,
 	})
 
 	return r, nil

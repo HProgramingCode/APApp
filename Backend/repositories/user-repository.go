@@ -6,20 +6,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type IAuthRepository interface {
+type IUserRepository interface {
 	CreateUser(user *models.User) error
 	FindUser(email string) (*models.User, error)
 }
 
-type AuthRepository struct {
+type UserRepository struct {
 	db *gorm.DB
 }
 
-func NewAuthRepository(db *gorm.DB) IAuthRepository {
-	return &AuthRepository{db: db}
+func NewUserRepository(db *gorm.DB) IUserRepository {
+	return &UserRepository{db: db}
 }
 
-func (r *AuthRepository) CreateUser(user *models.User) error {
+func (r *UserRepository) CreateUser(user *models.User) error {
 	result := r.db.Create(&user)
 	if result.Error != nil {
 		return result.Error
@@ -27,7 +27,7 @@ func (r *AuthRepository) CreateUser(user *models.User) error {
 	return nil
 }
 
-func (r *AuthRepository) FindUser(email string) (*models.User, error) {
+func (r *UserRepository) FindUser(email string) (*models.User, error) {
 	var user models.User
 	result := r.db.Where("email = ?", email).First(&user)
 	if result.Error != nil {

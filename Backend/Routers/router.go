@@ -9,6 +9,7 @@ import (
 
 type RouterSetting struct {
 	Auth controllers.IAuthController
+	User controllers.IUserCotroller
 }
 
 func SetupRouter(r *gin.Engine, setting RouterSetting) {
@@ -19,5 +20,11 @@ func SetupRouter(r *gin.Engine, setting RouterSetting) {
 	{
 		auth.POST("/signup", setting.Auth.Signup)
 		auth.POST("/login", setting.Auth.Login)
+	}
+	private := r.Group("/private")
+	private.Use(middleware.AuthMiddleware)
+	user := private.Group("/user")
+	{
+		user.GET("/info", setting.User.GetUserInfo)
 	}
 }
