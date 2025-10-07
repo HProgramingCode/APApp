@@ -3,13 +3,12 @@ package services
 import (
 	"main/models"
 	"main/repositories"
-
-	"golang.org/x/crypto/bcrypt"
+	"main/utils"
 )
 
 type IAuthService interface {
 	Signup(email string, password string) error
-	Login(email string, password string) error
+	Login(email string, password string) (*string, error)
 }
 
 type AuthService struct {
@@ -21,7 +20,7 @@ func NewAuthService(repo repositories.IAuthRepository) IAuthService {
 }
 
 func (s *AuthService) Signup(email string, password string) error {
-	hashPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashPassword, err := utils.HashPassword(password)
 	if err != nil {
 		return err
 	}
@@ -32,15 +31,20 @@ func (s *AuthService) Signup(email string, password string) error {
 	return s.repo.CreateUser(user)
 }
 
-func (s *AuthService) Login(email string, password string) error {
+func (s *AuthService) Login(email string, password string) (*string, error) {
 	foundUser, err := s.repo.FindUser(email)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(foundUser.Password), []byte(password))
+	err = utils.CheckPassword(foundUser.Password, password)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	token, err := utils.GenerateToken(foundUser.ID, foundUser.Email)
+	if err != nil {
+		return nil, err
+	}
+	return token, err
 }

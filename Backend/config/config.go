@@ -8,11 +8,12 @@ import (
 )
 
 type Config struct {
-	Port      string
-	DBDriver  string
-	DBName    string
-	JWTSecret string
-	Env       string
+	Port          string
+	DBDriver      string
+	DBName        string
+	JWTSecretKey  string
+	TokenLifeTime string
+	Env           string
 }
 
 var AppConfig *Config
@@ -24,11 +25,12 @@ func LoadConfig() {
 	}
 
 	AppConfig = &Config{
-		Port:      getEnv("PORT", "8080"),
-		DBDriver:  getEnv("DB_DRIVER", "sqlite3"),
-		DBName:    getEnv("DB_NAME", "app.db"),
-		JWTSecret: getEnv("JWT_SECRET", "default_secret"),
-		Env:       getEnv("ENV", "development"),
+		Port:          getEnv("PORT", "8080"),
+		DBDriver:      getEnv("DB_DRIVER", "sqlite3"),
+		DBName:        getEnv("DB_NAME", "app.db"),
+		JWTSecretKey:  getEnv("JWT_SECRET_KEY", "default_secret"),
+		TokenLifeTime: getEnv("TOKEN_LIFE_TIME", "1"),
+		Env:           getEnv("ENV", "development"),
 	}
 }
 
