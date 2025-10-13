@@ -41,11 +41,16 @@ func setupApp() (*gin.Engine, error) {
 	}
 
 	userRepository := repositories.NewUserRepository(infra.DB)
+
 	authService := services.NewAuthService(userRepository)
 	authController := controllers.NewAuthController(authService)
 
 	userService := services.NewUserService(userRepository)
 	userController := controllers.NewUserController(userService)
+
+	csvRepository := repositories.NewTestDataRepository(infra.DB)
+	csvService := services.NewImportService(csvRepository)
+	csvController := controllers.NewImportController(csvService)
 
 	r := gin.New()
 	r.Use(gin.Recovery())
@@ -54,6 +59,7 @@ func setupApp() (*gin.Engine, error) {
 	routers.SetupRouter(r, routers.RouterSetting{
 		Auth: authController,
 		User: userController,
+		CSV:  csvController,
 	})
 
 	return r, nil

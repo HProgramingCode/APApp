@@ -27,7 +27,7 @@ func AuthMiddleware(ctx *gin.Context) {
 		return
 	}
 
-	claimes, err := utils.GetTokenClaims(token)
+	claims, err := utils.GetTokenClaims(token)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"error": "invalid token",
@@ -36,8 +36,12 @@ func AuthMiddleware(ctx *gin.Context) {
 		return
 	}
 
-	email := claimes["email"].(string)
+	email := claims["email"].(string)
+	userId := uint(claims["sub"].(float64))
 
 	ctx.Set("email", email)
+	ctx.Set("userId", userId)
+
+	ctx.Next()
 	ctx.Next()
 }

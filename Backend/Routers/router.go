@@ -10,12 +10,10 @@ import (
 type RouterSetting struct {
 	Auth controllers.IAuthController
 	User controllers.IUserCotroller
+	CSV  controllers.IImportController
 }
 
 func SetupRouter(r *gin.Engine, setting RouterSetting) {
-	r.GET("/", controllers.Home)
-	r.GET("/example", middleware.AuthMiddleware, controllers.Example)
-
 	auth := r.Group("/auth")
 	{
 		auth.POST("/signup", setting.Auth.Signup)
@@ -26,5 +24,6 @@ func SetupRouter(r *gin.Engine, setting RouterSetting) {
 	user := private.Group("/user")
 	{
 		user.GET("/info", setting.User.GetUserInfo)
+		user.POST("/import", setting.CSV.ImportCSV)
 	}
 }

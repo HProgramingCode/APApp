@@ -10,7 +10,7 @@ import (
 )
 
 func Migrate() error {
-	err := infra.DB.AutoMigrate(&models.User{})
+	err := infra.DB.AutoMigrate(&models.User{}, &models.ImportData{}, &models.Record{})
 	if err != nil {
 		return err
 	}
