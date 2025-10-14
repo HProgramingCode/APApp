@@ -2,7 +2,7 @@ package infra
 
 import (
 	"main/config"
-	logger "main/middleware"
+	logger "main/internal/middleware"
 
 	"go.uber.org/zap"
 	"gorm.io/driver/sqlite"

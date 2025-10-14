@@ -3,8 +3,8 @@ package migrations
 import (
 	"main/config"
 	"main/infra"
-	logger "main/middleware"
-	"main/models"
+	logger "main/internal/middleware"
+	"main/internal/models"
 
 	"go.uber.org/zap"
 )
