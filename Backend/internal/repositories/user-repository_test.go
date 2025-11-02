@@ -50,3 +50,33 @@ func TestFindUser_NotFound(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, gorm.ErrRecordNotFound, err)
 }
+
+func TestCreateUser_Success(t *testing.T) {
+	db := SetupTestDB(t)
+	repo := repositories.NewUserRepository(db)
+
+	user := models.User{Email: "testCreate@example.com", Password: "testPass123"}
+
+	createErr := repo.CreateUser(&user)
+	assert.NoError(t, createErr)
+
+	result, findErr := repo.FindUser(user.Email)
+	assert.NoError(t, findErr)
+
+	assert.Equal(t, "testCreate@example.com", result.Email)
+}
+
+func TestCreateUser_Duplicate_Error(t *testing.T) {
+	db := SetupTestDB(t)
+	repo := repositories.NewUserRepository(db)
+
+	user1 := models.User{Email: "testCreate@example.com", Password: "testPass123"}
+	user2 := models.User{Email: "testCreate@example.com", Password: "testPass123"}
+
+	err1 := repo.CreateUser(&user1)
+	assert.NoError(t, err1)
+
+	err2 := repo.CreateUser(&user2)
+	assert.Error(t, err2)
+	assert.Contains(t, err2.Error(), "UNIQUE")
+}
